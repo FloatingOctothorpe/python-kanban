@@ -1,3 +1,9 @@
+# Ignore SQLite DB files
+*.db
+
+# Ignore vim tmp files
+*.swp
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
