@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kanban board</title>
+  <meta charset="utf-8" />
+  <style>
+    :root {
+      --kanban-columns: 3;
+      --default-card-color: #a2f7a8;
+      --light-background: #eaeaeb;
+    }
+    body {
+      font-family: Helvetica;
+      margin: 0
+    }
+    footer {
+      text-align: center;
+      color: #9eabb3;
+    }
+    footer hr {
+      border: none;
+      height: 1px;
+      background-color: #9eabb3;
+    }
+    #kanban header {
+      position: relative;
+    }
+    #kanban header h1 {
+      position: relative;
+      margin: 0;
+      padding: 0.5em;
+    }
+    #kanban section h2 {
+      text-align: center;
+      margin: 1em 0.3em 0 0.3em;
+    }
+    #kanban section ol {
+      margin: 0.2em;
+      padding: 3px;
+      margin: 1em 0.5em;
+      min-height: 300px;
+    }
+    #kanban header form {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background-color: var(--light-background);
+      padding: 1em;
+      border-bottom-left-radius: 1em;
+      display: inline-block;
+      border-left: 1px solid grey;
+      border-bottom: 1px solid grey;
+    }
+    #kanban header form>* {
+      vertical-align: middle;
+      padding-right: 1em;
+    }
+    #kanban-options {
+      margin: 1em;
+      text-align: center;
+    }
+    #kanban-cols {
+      min-width: calc(var(--kanban-columns) * 300px);
+      display: grid;
+      grid-template-columns: repeat(var(--kanban-columns), 1fr);
+      grid-gap: 10px;
+      margin: 1em;
+    }
+    li.kanban-card {
+      position: relative;
+      text-align: center;
+      margin: 0.5em;
+      display: block;
+      background-color: var(--default-card-color);
+      border-radius: 5px;
+      padding 1em;
+      display: block;
+      border: 1px solid black;
+    }
+
+    li.kanban-card.archived {
+      opacity: 0.6;
+    }
+    li.kanban-card p.card-text {
+      margin: 2.2em 1em 1em 1em;
+    }
+    li.kanban-card p.card-last-updated {
+      text-align: center;
+      margin: 0.5em;
+    }
+    li.kanban-card .card_id {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      text-align: left;
+      display: block;
+    }
+    li.kanban-card .card-view {
+      display: block;
+      position: relative;
+    }
+    li.kanban-card .edit-icon {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+    }
+    li.kanban-card:hover .edit-icon {
+      opacity: 1;
+      transition: opacity .2s;
+    }
+    #kanban-card-edit {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(111, 111, 111, 0.4);
+    }
+    #kanban-card-edit input[type="submit"], #kanban-card-edit button.delete-card {
+      color: white;
+      border: none;
+      padding: 0.3em 3em;
+      border-radius: 5px;
+      margin: 0.7em 0 0 0;
+      width: 12em;
+      border: 1px solid grey;
+    }
+    #kanban-card-edit button.delete-card {
+      background-color: red;
+      float: right;
+    }
+    #kanban-card-edit input[type="submit"] {
+      background-color: green;
+      float: left;
+    }
+    #kanban-card-edit .color-label {
+      float: left
+    }
+    #kanban-card-edit .archived-label {
+      float: right
+    }
+    #kanban-card-edit .color-label, #kanban-card-edit .archived-label {
+      padding: 0.6em 0;
+      display: inline-block;
+      verticle-align: bottom;
+      line-height: 2em;
+    }
+    #kanban-card-edit textarea {
+      width: 100%;
+      height: 6em;
+      margin: 0;
+    }
+    #kanban-card-edit .del-icon {
+      position: absolute;
+      left: 5px;
+      top: 5px;
+    }
+    #kanban-card-edit .cancel-icon {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+    #kanban-card-edit #card_edit {
+      position: absolute;
+      background: var(--light-background);
+      display: block;
+      top: 200px;
+      width: 400px;
+      left: calc(50% - 200px - 1.2em);
+      padding: 1.2em;
+      border-radius: 1em;
+      border: solid 1px black;
+    }
+
+    section.drop-target ol {
+      background-color: rgba(222, 222, 222, 0.4);
+      border: 2px dashed black;
+      border-radius: 1em;
+    }
+    .column {
+      background-color: var(--light-background);
+      border-radius: 5px;
+    }
+    #kanban[v-cloak] {
+      display: none;
+    }
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity .2s
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+      opacity: 0
+    }
+    .fade-move {
+      transition: transform 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <noscript>
+    <p>Please enable JavaScript to view this page.</p>
+  </noscript>
+  <div id="kanban" v-cloak>
+    <header>
+      <h1>Kanban board</h1>
+      <form v-on:submit.prevent="create_card" action="card" method="POST">
+        <input title="create card" src="static/plus_icon.svg" type="image" value="Create card" />
+        <label>text: <input name="text" type="text" required="required" /></label>
+        <label>colour: <input ref="new_card_color" title="Select colour" name="color" type="color" /></label>
+      </form>
+    </header>
+    <div id="kanban-cols">
+      <section class="column"
+        v-bind:id="'column' + index"
+        v-for="(column, index) in columns"
+        ondrop="drop_handler(event);"
+        ondragover="dragover_handler(event);"
+        ondragleave="dragleave_handler(event);">
+        <h2>{{ column }}</h2>
+        <transition-group tag="ol" name="fade">
+          <li v-bind:id="'card' + card.id" draggable="true"
+            :key="card.id"
+            class="kanban-card"
+            v-bind:class="{ archived: card.archived }"
+            ondragstart="dragstart_handler(event);"
+            v-bind:style="{'background-color':  card.color}"
+            v-if="card.column === column && (card.archived === false || show_archived_cards)"
+            v-for="card in cards">
+            <a draggable="false" class="edit-icon" href='#' v-on:click.prevent="start_card_edit(card.id, $event)" title="edit">
+              <img src="static/edit_icon.svg" alt="edit" />
+            </a>
+            <span class="card_id" v-show="show_card_ids"><small>#{{ card.id }}</small></span>
+            <p class="card-text">{{ card.text }}</p>
+            <p class="card-last-updated"><small v-show="show_card_timestamps"> Update {{ Math.floor((Date.now() - Date.parse(card.modified)) / (1000*60*60*24)) }} day(s) ago</small></p>
+          </li>
+        </transition-group>
+      </section>
+      <div ref="card_edit_container" v-on:keyup.Esc.prevent="cancel_card_edit" id="kanban-card-edit"  v-if="edit_card !== null" v-on:click="handle_card_edit_click">
+        <div id="card_edit">
+          <form v-on:submit.prevent="complete_card_edit(edit_card.id, $event)" action="#" method="PUT">
+            <label class="color-label">Background color: <input title="Select colour" ref="card_edit_color" type="color" v-bind:value="edit_card.color"/></label>
+            <label class="archived-label">Archived?: <input title="Archive card" ref="card_edit_archive" type="checkbox" v-bind:checked="edit_card.archived"/></label>
+            <br />
+            <textarea v-on:keyup.ctrl.Enter="complete_card_edit(edit_card.id, $event)" ref="card_edit_text">{{edit_card.text}}</textarea>
+            <input class="save-card" type="submit" value="save" />
+          </form>
+          <button class="delete-card" v-on:click.once="delete_card(edit_card.id, $event)">delete card</button>
+        </div>
+      </div>
+    </div>
+    <div id="kanban-options">
+      <label>show archived cards: <input type="checkbox" v-model="show_archived_cards" /></label>
+      <label>show card IDs: <input type="checkbox" v-model="show_card_ids" /></label>
+      <label>show last updated: <input type="checkbox" v-model="show_card_timestamps" /></label>
+      <button v-on:click="refresh_cards">refresh data</button>
+    </div>
+  </div>
+  <footer class="footer">
+    <hr>
+    <small>
+      The source code for this site is available on <a
+        href="https://github.com/FloatingOctothorpe/python-kanban">GitHub</a>.
+    </small>
+  </footer>
+  <script src="static/vue.min.js"></script>
+  <script src="static/axios.min.js"></script>
+  <script src="static/kanban.js"></script>
+</body>
+</html>
