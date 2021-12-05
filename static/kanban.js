@@ -1,5 +1,5 @@
 /* eslint-env es6 */
-/* global Vue, axios */
+/* global Vue */
 
 /* eslint indent: ["error", 2] */
 /* exported app, dragstart_handler, dragover_handler,
@@ -37,7 +37,10 @@ window.app = new Vue({
       let form = ev.target;
       let form_color = form.color.value;
 
-      axios.post(form.action, new FormData(form)).then(function () {
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+      }).then(function () {
         vue_app.refresh_cards();
         form.reset();
         vue_app.$refs.new_card_color.value = form_color;
@@ -47,7 +50,9 @@ window.app = new Vue({
       let vue_app = this;
 
       if (window.confirm("Delete card?")) {
-        axios.delete("card/" + card_id).then(function () {
+        fetch("card/" + card_id, {
+          method: 'DELETE'
+        }).then(function () {
           for (let i = 0; i < vue_app.cards.length; i += 1) {
             if (vue_app.cards[i].id === card_id) {
               vue_app.edit_card = null;
@@ -80,20 +85,22 @@ window.app = new Vue({
     refresh_cards: function () {
       let vue_app = this;
 
-      axios.get("cards").then(function (response) {
-        vue_app.cards = response.data;
-      });
+      fetch("cards")
+        .then(response => response.json())
+        .then(response => { vue_app.cards = response; });
     },
     refresh_columns: function () {
       let vue_app = this;
 
-      axios.get("columns").then(function (response) {
-        vue_app.columns = response.data;
-        document.documentElement.style.setProperty(
-          "--kanban-columns",
-          vue_app.columns.length
-        );
-      });
+      fetch("columns")
+        .then(response => response.json())
+        .then(response => {
+          vue_app.columns = response;
+          document.documentElement.style.setProperty(
+            "--kanban-columns",
+            vue_app.columns.length
+          );
+        });
     },
     start_card_edit: function (card_id) {
       this.edit_card = this.get_card(card_id);
@@ -108,7 +115,11 @@ window.app = new Vue({
     },
     update_card: function (id) {
       let card = this.get_card(id);
-      axios.put("card/" + card.id, card);
+      fetch("card/" + card.id, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(card)
+      });
     },
     update_card_color: function (card_id, ev) {
       this.get_card(card_id).color = ev.target.value;
@@ -200,9 +211,10 @@ function drop_handler (ev) {
     }
   }
   if (column_cards.length > 0 && card.id !== before_id) {
-    axios.post("card/reorder", {
-      before: before_id,
-      card: card.id
+    fetch("card/reorder", {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ before: before_id, card: card.id})
     }).then(function () {
       window.app.refresh_cards();
     });

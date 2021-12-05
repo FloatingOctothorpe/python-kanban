@@ -31,9 +31,7 @@ under the terms of the [GNU General Public License v3][gpl-v3]:
    Valeanu, and are available under the [Creative Commons (CC BY-NC
    3.0)][cc-by-nc-3.0] license.
  * [Vue.js][vuejs-home] is released under the [MIT License][mit-license].
- * [Axios][axios-github] is released under the [MIT License][mit-license].
 
-[axios-github]: https://github.com/axios/axios
 [cc-by-nc-3.0]: https://creativecommons.org/licenses/by-nc/3.0/
 [edit-icon]: https://www.iconfinder.com/icons/103173/edit_new_write_icon
 [flask-home]: http://flask.pocoo.org/
