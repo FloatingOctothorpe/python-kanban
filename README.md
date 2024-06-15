@@ -3,6 +3,8 @@ Python Kanban Board
 A simple Kanban board application using [Flask][flask-home] and
 [SQLite][sqlite-home].
 
+![Kanban Board screenshot](screenshot.png)
+
 Running locally
 ---------------
 The application can be run with the following steps:
@@ -31,8 +33,10 @@ under the terms of the [GNU General Public License v3][gpl-v3]:
    Valeanu, and are available under the [Creative Commons (CC BY-NC
    3.0)][cc-by-nc-3.0] license.
  * [Vue.js][vuejs-home] is released under the [MIT License][mit-license].
+ * [DragDropTouch][dragdroptouch-home] is released under the [MIT License][mit-license].
 
 [cc-by-nc-3.0]: https://creativecommons.org/licenses/by-nc/3.0/
+[dragdroptouch-home]: https://github.com/Bernardo-Castilho/dragdroptouch
 [edit-icon]: https://www.iconfinder.com/icons/103173/edit_new_write_icon
 [flask-home]: http://flask.pocoo.org/
 [gpl-v3]: https://www.gnu.org/licenses/gpl-3.0.en.html
