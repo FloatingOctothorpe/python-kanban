@@ -43,7 +43,7 @@ The application can be run with the following steps:
 
 ## Overview
 
-This is a simple Kanban board application built using Flask and SQLite. The application allows users to create, update, delete, and reorder cards within predefined columns on a Kanban board. It is flexible enough to handle multiple boards, each corresponding to a specific unit, using a new `id_unidade` field.
+This is a simple Kanban board application built using Flask and SQLite. The application allows users to create, update, delete, and reorder cards within predefined columns on a Kanban board.
 
 ---
 
@@ -64,6 +64,8 @@ The project consists of three main files:
 This file sets up the Flask application and handles routes for card management.
 
 - **Routes**:
+  - `/`: Return Kanban board index page
+  - `/static/<file:path>`: Return static files from the `static` directory (CSS, JS etc)
   - `/cards`: Returns all cards in JSON format.
   - `/columns`: Returns available columns.
   - `/card`: POST endpoint to create a new card.
@@ -103,9 +105,8 @@ This file initializes the SQLAlchemy instance and connects to an SQLite database
 
 ### Key Considerations
 
-- Do not manually alter the `id` field, as it breaks the relationship in the database.
-- Ensure the `column` value is valid (exists in the list of predefined columns).
-- Modifying the database schema should be done cautiously (e.g., adding `id_unidade` for multi-board support).
+- The `id` field must be unique.
+- Ensure the `column` value is valid (exists in the list of predefined columns set by the `kanban.columns` config option).
 
 ---
 
@@ -117,12 +118,11 @@ The application uses **SQLite** managed through **SQLAlchemy**. The main table `
 |-------------|--------------|------------------------------------------------|
 | id          | Integer (PK) | Primary key for each card                      |
 | text        | String(120)  | The card's content                             |
-| column      | String(120)  | The card's column (e.g., "Lost", "Qualified")  |
+| column      | String(120)  | The card's column (e.g., "To Do", "Done")      |
 | color       | String(7)    | Color code in `#RRGGBB` format                 |
 | modified    | DateTime     | Last modification timestamp                    |
 | archived    | Boolean      | Indicates if the card is archived              |
 | sort_order  | Integer      | Order of the card within the column            |
-| id_unidade  | Integer      | Unit ID for multi-board support                |
 
 ---
 
@@ -148,7 +148,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_project.db'
 
 ### 3. **Models and Routes**
 
-Integrate the `Card` model and the routes from `main.py`. If using multiple boards, ensure that `id_unidade` or a similar identifier is passed.
+Integrate the `Card` model and the routes from `main.py`.
 
 ---
 
